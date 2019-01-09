@@ -1,5 +1,8 @@
 # raspbian-media-center
 Media server for the rasbian OS. Tested on a Rasberry Pi 3+.
+
+The project is mainly for learning purposes.
+
 ## Features
 - [Raspian Stretch](https://www.raspberrypi.org/downloads/raspbian/)
 - [Kodi](https://kodi.tv/)
@@ -9,21 +12,26 @@ Media server for the rasbian OS. Tested on a Rasberry Pi 3+.
 - [Jackett](https://github.com/Jackett/Jackett)
 - [Docker](https://www.docker.com/)
 
-## Create Rasbian Stretch SD card
+## Install and Configure Raspian Stretch
+Based the install guide located [here](https://www.makeuseof.com/tag/install-kodi-raspbian-media-center/)
+
+### Create Rasbian Stretch SD card
 Download Raspian Stretch [here](https://www.raspberrypi.org/downloads/raspbian/)
 
-## Allow SSH into Raspberry Pi
-Make an empty file called 'SSH' in the 'root' folder of SD card.
+### Allow SSH into Raspberry Pi
+Make an empty file called `SSH` in the `root` folder of SD card.
 
 ```sh
+cd SD_ROOT
 touch SSH
 ```
 
-## Setup Wifi Connection Without Screen*
-\* This has never worked for me.
+### Setup Wifi Connection Without Screen
+> Seems to take a long time to connect on first boot
 
+Put the configuration below in `wpa_supplicant.conf` file in the `root` folder of SD card.
 ```sh
-touch wpa_supplicant.conf
+cd SD_ROOT
 vi wpa_supplicant.conf
 ```
 
@@ -39,10 +47,7 @@ network={
 }
 ```
 
-# Configure Raspian Stretch
-Based the install guide located [here](https://www.makeuseof.com/tag/install-kodi-raspbian-media-center/)
-
-SSH into server.
+### SSH into server.
 - Username: pi
 - Password: raspberry
 
@@ -50,17 +55,18 @@ SSH into server.
 ssh pi@IP
 ```
 
-Update and install ntfs drivers.
-
+### Update and Upgrade OS
 ```sh
 sudo apt update
 sudo apt upgrade -y
-# Support NTFS drives
+```
+
+### Install NTFS Drivers (Optional)
+```sh
 sudo apt install ntfs-3g -y
 ```
 
-then run the rasbian configuration program.
-
+### Run the rasbian configuration program
 ```sh
 sudo raspi-config
 ```
@@ -70,46 +76,67 @@ sudo raspi-config
 - Finally, you need to enable certain video codecs that don’t run as standard. These include VP6, VP8, MJPEG, and Theora, among others. To do this, you need to enable the camera. While no camera needs to be connected, enabling this feature will ensure the codecs can be used.
 - Advanced Options > GL Driver and set Original non-GL desktop driver
 
-# Install Docker
+### Extend Default Pagefile Limit
+```sh
+sudo vi /etc/dphys-swapfile
+```
+Comment out the static swap size
+```sh
+sudo dphys-swapfile setup
+```
+
+### Use Googles DNS Servers
+```
+static domain_name_servers=8.8.8.8 8.8.4.4
+```
+
+## Install and Configure Docker
+Install Docker
 > For Raspbian, installing using the repository is not yet supported. You must instead use the [convenience script](https://docs.docker.com/install/linux/docker-ce/debian/#install-using-the-convenience-script).
 
 ```sh
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
+```
+
+### Allow pi user to run Docker
+```sh
 sudo usermod -aG docker pi
 ```
 
-# Install Kodi
+### Disable Docker service autostart on boot
+See issue [here](https://github.com/docker/for-win/issues/1192) (same for linux)
+```sh
+sudo systemctl disable docker
+```
+
+### Set docker to launch 60 seconds after boot
+This is to allow OS to automount required drives before Docker starts.
+```sh
+@reboot sleep 60 && systemctl start docker
+```
+
+### Install Docker Compose
+```sh
+sudo apt install docker-compose
+```
+
+## Install Kodi
 ```sh
 sudo apt-get update
 sudo apt-get install -y kodi
-# Auto start Kodi on boot
+## Auto start Kodi on boot
 echo "@kodi" >> ~/.config/lxsession/LXDE-pi/autostart
 ```
 
-# Install [Deluge](https://hub.docker.com/r/linuxserver/deluge/)
+## Create [Deluge](https://hub.docker.com/r/linuxserver/deluge/) Docker Container (ARM) 
 > The admin interface is available at IP:8112 with a default user/password of admin/deluge.
 
 ```sh
 cd ~
-docker stop deluge
-docker rm deluge
 git clone https://github.com/linuxserver/docker-deluge
 sed -i 's@FROM lsiobase/alpine:edge@FROM lsiobase/alpine.armhf:edge@' docker-deluge/Dockerfile
 docker build -t deluge.armhf docker-deluge/
-docker create \
-  --name deluge \
-  --net=host \
-  -e PGID=1000 \
-  -e PUID=1000 \
-  -e TZ=Australia/Brisbane \
-  -e UMASK_SET=000 \
-  -v <MEDIA_LOCATION>/Torrent_Downloads:/downloads \
-  -v /var/lib/deluge/.config/deluge:/config \
-  --restart unless-stopped \
-  deluge.armhf
-
-docker start deluge
 ```
 
 - --net=host - Shares host networking with container, required.
@@ -120,29 +147,14 @@ docker start deluge
 - -e UMASK_SET for umask setting of deluge, optional , default if left unset is 022.
 - -e TZ for timezone information, eg [Europe/London](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
 
-# Install [Sonarr](https://hub.docker.com/r/linuxserver/sonarr/)
+## Create [Sonarr](https://hub.docker.com/r/linuxserver/sonarr/) Docker Container (ARM)
 > The admin interface is available at IP:8989
 
 ```sh
 cd ~
-docker stop sonarr
-docker rm sonarr
 git clone https://github.com/linuxserver/docker-sonarr
 sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-sonarr/Dockerfile
 docker build -t sonarr.armhf docker-sonarr/
-docker create \
-    --name sonarr \
-    --net=host \
-    -e PGID=1000 \
-    -e PUID=1000 \
-    -v /etc/localtime:/etc/localtime:ro \
-    -v /var/lib/sonarr/config:/config \
-    -v <MEDIA_LOCATION>/TV_Shows:/tv \
-    -v <MEDIA_LOCATION>/Torrent_Downloads:/downloads \
-    --restart unless-stopped \
-    sonarr.armhf
-
-docker start sonarr
 ```
 
 - -p 8989 - the port sonarr webinterface
@@ -153,29 +165,13 @@ docker start sonarr
 - -e PGID for for GroupID - see below for explanation
 - -e PUID for for UserID - see below for explanation
 
-# Install [Radarr](https://hub.docker.com/r/linuxserver/radarr/)
+## Create [Radarr](https://hub.docker.com/r/linuxserver/radarr/) Docker Container (ARM)
 > The admin interface is available at IP:7878
 
 ```sh
-cd ~
-docker stop radarr
-docker rm radarr
-rm -rf docker-radarr/
 git clone https://github.com/linuxserver/docker-radarr
 sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-radarr/Dockerfile
 docker build -t radarr.armhf docker-radarr/
-docker create \
-  --name=radarr \
-    -e PGID=1000 \
-    -e PUID=1000 \
-    -v /var/lib/radarr/config:/config \
-    -v <MEDIA_LOCATION>/Torrent_Downloads:/downloads \
-    -v <MEDIA_LOCATION>/Movies:/movies \
-    -v /etc/localtime:/etc/localtime:ro \
-    --restart unless-stopped \
-    --net=host \
-    radarr.armhf
-docker start radarr
 ```
 
 - -p 7878 - the port(s)
@@ -187,7 +183,7 @@ docker start radarr
 - -e PGID for for GroupID - see below for explanation
 - -e PUID for for UserID - see below for explanation
 
-# Install Jackett
+## Create Jackett Docker Container (ARM)
 > The admin interface is available at IP:9117
 
 ```sh
@@ -195,15 +191,6 @@ cd ~
 git clone https://github.com/linuxserver/docker-jackett
 sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-jackett/Dockerfile
 docker build -t jackett.armhf docker-jackett/
-docker rm jackett
-docker create \
-  --name=jackett \
-  -v /var/lib/jackett/config:/config \
-  -v /var/lib/jackett/downloads:/downloads \
-  -v /etc/localtime:/etc/localtime:ro \
-  -p 9117:9117 \
-  jackett.armhf
-docker start jackett
 ```
 
 - -p 9117 - the port(s)
@@ -214,3 +201,60 @@ docker start jackett
 - -e RUN_OPTS - Optionally specify additional arguments to be passed. EG. - --ProxyConnection=10.0.0.100:1234
 - -e PGID for GroupID - see below for explanation
 - -e PUID for UserID - see below for explanation
+
+
+## Commands
+### Build Docker containers on local ARM architecture
+```sh
+cd ~
+git clone https://github.com/linuxserver/docker-deluge
+sed -i 's@FROM lsiobase/alpine:edge@FROM lsiobase/alpine.armhf:edge@' docker-deluge/Dockerfile
+docker build -t deluge.armhf docker-deluge/
+
+git clone https://github.com/linuxserver/docker-sonarr
+sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-sonarr/Dockerfile
+docker build -t sonarr.armhf docker-sonarr/
+
+git clone https://github.com/linuxserver/docker-radarr
+sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-radarr/Dockerfile
+docker build -t radarr.armhf docker-radarr/
+
+git clone https://github.com/linuxserver/docker-jackett
+sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-jackett/Dockerfile
+docker build -t jackett.armhf docker-jackett/
+```
+### Create and Start Docker Containers
+```sh
+sudo docker-compose up # sudo for local networking
+```
+
+### Start Containers
+```sh
+sudo docker-compose start
+```
+
+### Stop Containers
+```sh
+sudo docker-compose stop
+```
+
+## Failures (these attempts didn't seem to work for unknown reasons)
+### Modify Docker Service to use RequiresMountsFor
+Always started Docker before the mount was up.
+```sh
+sudo systemctl edit docker.service
+```
+```
+[Unit]
+RequiresMountsFor=MOUNT_PATH
+```
+
+```sh
+sudo systemctl daemon-reload
+```
+
+### Add cron to wait for Mount
+Always started Docker before the mount was up.
+```sh
+@reboot until [ -d MOUNT_PATH ]; do sleep 1; done; systemctl start docker
+```
