@@ -91,7 +91,7 @@ static domain_name_servers=8.8.8.8 8.8.4.4
 ```
 
 ## Install and Configure Docker
-Install Docker
+### Install Docker
 > For Raspbian, installing using the repository is not yet supported. You must instead use the [convenience script](https://docs.docker.com/install/linux/docker-ce/debian/#install-using-the-convenience-script).
 
 ```sh
@@ -129,7 +129,7 @@ sudo apt-get install -y kodi
 echo "@kodi" >> ~/.config/lxsession/LXDE-pi/autostart
 ```
 
-## Create [Deluge](https://hub.docker.com/r/linuxserver/deluge/) Docker Container (ARM) 
+## Create [Deluge](https://hub.docker.com/r/linuxserver/deluge/) Docker Container (ARM)
 > The admin interface is available at IP:8112 with a default user/password of admin/deluge.
 
 ```sh
