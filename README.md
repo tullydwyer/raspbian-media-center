@@ -129,15 +129,8 @@ sudo apt-get install -y kodi
 echo "@kodi" >> ~/.config/lxsession/LXDE-pi/autostart
 ```
 
-## Create [Deluge](https://hub.docker.com/r/linuxserver/deluge/) Docker Container (ARM)
+## [Deluge](https://hub.docker.com/r/linuxserver/deluge/) Docker Container (ARM)
 > The admin interface is available at IP:8112 with a default user/password of admin/deluge.
-
-```sh
-cd ~
-git clone https://github.com/linuxserver/docker-deluge
-sed -i 's@FROM lsiobase/alpine:edge@FROM lsiobase/alpine.armhf:edge@' docker-deluge/Dockerfile
-docker build -t deluge.armhf docker-deluge/
-```
 
 - --net=host - Shares host networking with container, required.
 - -v /config - deluge configs
@@ -147,15 +140,8 @@ docker build -t deluge.armhf docker-deluge/
 - -e UMASK_SET for umask setting of deluge, optional , default if left unset is 022.
 - -e TZ for timezone information, eg [Europe/London](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
 
-## Create [Sonarr](https://hub.docker.com/r/linuxserver/sonarr/) Docker Container (ARM)
+## [Sonarr](https://hub.docker.com/r/linuxserver/sonarr/) Docker Container (ARM)
 > The admin interface is available at IP:8989
-
-```sh
-cd ~
-git clone https://github.com/linuxserver/docker-sonarr
-sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-sonarr/Dockerfile
-docker build -t sonarr.armhf docker-sonarr/
-```
 
 - -p 8989 - the port sonarr webinterface
 - -v /config - database and sonarr configs
@@ -165,14 +151,8 @@ docker build -t sonarr.armhf docker-sonarr/
 - -e PGID for for GroupID - see below for explanation
 - -e PUID for for UserID - see below for explanation
 
-## Create [Radarr](https://hub.docker.com/r/linuxserver/radarr/) Docker Container (ARM)
+## [Radarr](https://hub.docker.com/r/linuxserver/radarr/) Docker Container (ARM)
 > The admin interface is available at IP:7878
-
-```sh
-git clone https://github.com/linuxserver/docker-radarr
-sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-radarr/Dockerfile
-docker build -t radarr.armhf docker-radarr/
-```
 
 - -p 7878 - the port(s)
 - -v /config - Radarr Application Data
@@ -186,13 +166,6 @@ docker build -t radarr.armhf docker-radarr/
 ## Create Jackett Docker Container (ARM)
 > The admin interface is available at IP:9117
 
-```sh
-cd ~
-git clone https://github.com/linuxserver/docker-jackett
-sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-jackett/Dockerfile
-docker build -t jackett.armhf docker-jackett/
-```
-
 - -p 9117 - the port(s)
 - -v /config - where Jackett should store its config file.
 - -v /downloads - Path to torrent blackhole
@@ -204,25 +177,6 @@ docker build -t jackett.armhf docker-jackett/
 
 
 ## Commands
-### Build Docker containers on local ARM architecture
-```sh
-cd ~
-git clone https://github.com/linuxserver/docker-deluge
-sed -i 's@FROM lsiobase/alpine:edge@FROM lsiobase/alpine.armhf:edge@' docker-deluge/Dockerfile
-docker build -t deluge.armhf docker-deluge/
-
-git clone https://github.com/linuxserver/docker-sonarr
-sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-sonarr/Dockerfile
-docker build -t sonarr.armhf docker-sonarr/
-
-git clone https://github.com/linuxserver/docker-radarr
-sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-radarr/Dockerfile
-docker build -t radarr.armhf docker-radarr/
-
-git clone https://github.com/linuxserver/docker-jackett
-sed -i 's@FROM lsiobase/mono:xenial@FROM lsiobase/mono.armhf:xenial@' docker-jackett/Dockerfile
-docker build -t jackett.armhf docker-jackett/
-```
 ### Create and Start Docker Containers
 ```sh
 sudo docker-compose up # sudo for local networking

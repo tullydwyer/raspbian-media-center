@@ -2,7 +2,7 @@ version: '2.0'
 
 services:
   deluge:
-     image: linuxserver/deluge:arm32v6-latest
+     image: linuxserver/deluge:arm32v7-2.0.3-2201906121747ubuntu18.04.1-ls30
      volumes:
        - deluge_config:/config
        - ${MEDIA_LOCATION}/Torrent_Downloads:/downloads:shared
@@ -16,7 +16,7 @@ services:
        UMASK_SET: 000
 
   sonarr:
-    image: sonarr.armhf
+    image: linuxserver/sonarr:arm32v7-2.0.0.5322-ls25
     volumes:
       - sonarr_config:/config
       - ${MEDIA_LOCATION}/TV_Shows:/tv:shared
@@ -31,7 +31,7 @@ services:
 
 
   radarr:
-    image: radarr.armhf
+    image: linuxserver/radarr:arm32v7-2.0.0.1399-ls13
     volumes:
       - radarr_config:/config
       - ${MEDIA_LOCATION}/Movies:/movies:shared
@@ -47,7 +47,7 @@ services:
       UMASK_SET: 000
 
   jackett:
-    image: jackett.armhf
+    image: linuxserver/jackett:arm32v7-v0.11.487-ls30
     volumes:
       - jackett_config:/config
       - ${MEDIA_LOCATION}/Torrent_Downloads:/downloads:shared
