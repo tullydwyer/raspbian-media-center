@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
   deluge:
-     image: linuxserver/deluge:arm32v7-2.0.3-2201906121747ubuntu18.04.1-ls30
+     image: linuxserver/deluge:arm32v6-latest
      volumes:
        - ${MEDIA_LOCATION}/deluge_config:/config
        - ${MEDIA_LOCATION}/Torrent_Downloads:/downloads:shared
