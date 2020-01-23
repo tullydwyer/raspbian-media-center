@@ -1,10 +1,10 @@
-version: '2.0'
+version: '3.2'
 
 services:
   deluge:
      image: linuxserver/deluge:arm32v6-latest
      volumes:
-       - deluge_config:/config
+       - ${MEDIA_LOCATION}/deluge_config:/config
        - ${MEDIA_LOCATION}/Torrent_Downloads:/downloads:shared
      restart: unless-stopped
      network_mode: host
@@ -16,9 +16,9 @@ services:
        UMASK_SET: 000
 
   sonarr:
-    image: sonarr.armhf
+    image: linuxserver/sonarr:arm32v6-latest
     volumes:
-      - sonarr_config:/config
+      - ${MEDIA_LOCATION}/sonarr_config:/config
       - ${MEDIA_LOCATION}/TV_Shows:/tv:shared
       - ${MEDIA_LOCATION}/Torrent_Downloads:/downloads:shared
       - /etc/localtime:/etc/localtime:ro
@@ -31,9 +31,9 @@ services:
 
 
   radarr:
-    image: radarr.armhf
+    image: linuxserver/radarr:arm32v6-latest
     volumes:
-      - radarr_config:/config
+      - ${MEDIA_LOCATION}/radarr_config:/config
       - ${MEDIA_LOCATION}/Movies:/movies:shared
       - ${MEDIA_LOCATION}/Torrent_Downloads:/downloads:shared
       - /etc/localtime:/etc/localtime:ro
@@ -47,9 +47,9 @@ services:
       UMASK_SET: 000
 
   jackett:
-    image: jackett.armhf
+    image: linuxserver/jackett:arm32v6-latest
     volumes:
-      - jackett_config:/config
+      - ${MEDIA_LOCATION}/jackett_config:/config
       - ${MEDIA_LOCATION}/Torrent_Downloads:/downloads:shared
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
@@ -60,10 +60,3 @@ services:
       PUID: 1000
       TZ: Australia/Brisbane
       UMASK_SET: 000
-
-
-volumes:
-    deluge_config: {}
-    sonarr_config: {}
-    radarr_config: {}
-    jackett_config: {}
