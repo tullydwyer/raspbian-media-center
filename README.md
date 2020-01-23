@@ -184,7 +184,7 @@ sudo systemctl enable kodi.service
 - -e UMASK_SET for umask setting of deluge, optional , default if left unset is 022.
 - -e TZ for timezone information, eg [Europe/London](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
 
-## Create [Sonarr](https://hub.docker.com/r/linuxserver/sonarr/) Docker Container (ARM)
+## [Sonarr](https://hub.docker.com/r/linuxserver/sonarr/) Docker Container (ARM)
 > The admin interface is available at IP:8989
 
 - -p 8989 - the port sonarr webinterface
@@ -195,7 +195,7 @@ sudo systemctl enable kodi.service
 - -e PGID for for GroupID - see below for explanation
 - -e PUID for for UserID - see below for explanation
 
-## Create [Radarr](https://hub.docker.com/r/linuxserver/radarr/) Docker Container (ARM)
+## [Radarr](https://hub.docker.com/r/linuxserver/radarr/) Docker Container (ARM)
 > The admin interface is available at IP:7878
 
 - -p 7878 - the port(s)
